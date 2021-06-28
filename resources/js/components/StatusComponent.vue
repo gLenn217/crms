@@ -1,14 +1,14 @@
 <template>
     <div>
-        <h2>Contact Person</h2>
+        <h2>Office</h2>
         <div class="row">
             <div class="col-md-12">
                 <div class="form-group d-flex justify-content-between">
-                    <button v-on:click="loadCreateModal" class="btn btn-primary" style="width: 180px;">Add Contact Person</button>
+                    <button v-on:click="loadCreateModal" class="btn btn-primary" style="width: 180px;">Add Office</button>
 
                     <div>
-                        <a :href="url" class="btn btn-secondary">Export to Excelbtn</a>
-                        <a v-on:click="pdfModal" class="btn btn-dark">Print to PDFbtn</a>
+                        <a :href="url" class="btn btn-secondary">Export to Excel</a>
+                        <a v-on:click="pdfModal" class="btn btn-dark">Print to PDF</a>
                     </div>
 
                 </div>
@@ -21,7 +21,8 @@
                     :data="tableData"
                     :columns="columns"
                     :options="options">
-                   <template slot="actions" slot-scope="row">
+                    <template slot="actions" slot-scope="row">
+                        {{ tableData[row.index-1].office_id }} 
                         <button v-on:click="loadUpdateModal(row.index-1)" class="btn btn-success mb-2">Edit</button>
                         <button v-on:click="deleteRecord(row.index-1)" class="btn btn-danger mb-2">Delete</button>
                     </template> 
@@ -38,8 +39,8 @@
                         <h5 class="modal-title" id="exampleModalLabel" v-if="print">Print Report</h5>
 
                         <div v-else>
-                            <h5 class="modal-title" id="exampleModalLabel" v-if="adding">Add Contact Person</h5>
-                            <h5 class="modal-title" id="exampleModalLabel" v-else>Edit Contact Person</h5>
+                            <h5 class="modal-title" id="exampleModalLabel" v-if="adding">Add Office</h5>
+                            <h5 class="modal-title" id="exampleModalLabel" v-else>Edit Office</h5>
                         </div>
 
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -71,16 +72,19 @@
                         </div>
 
                         <div class="form-group" v-else>
-                            <label for="lname">Lastname</label>
-                            <input v-model="contact_person.lname" type="text" class="form-control" id="lname" maxlength="80">
-                            <label for="fname">Firstname</label>
-                            <input v-model="contact_person.fname" type="text" class="form-control" id="fname" maxlength="80">
-                            <label for="fname">Middlename</label>
-                            <input v-model="contact_person.mname" type="text" class="form-control" id="mname" maxlength="80">
-                            <label for="contact_no">Contact #</label>
-                            <input v-model="contact_person.contact_no" type="text" class="form-control" id="contact_no" maxlength="11">
-                            <label for="designation">Designation</label>
-                            <input v-model="contact_person.designation" type="text" class="form-control" id="designation" maxlength="80">
+
+                            <label for="name">Name</label> {{ office.office_id }}
+                            <input v-model="office.name" type="text" class="form-control" id="name" maxlength="80">
+
+                            <label for="contact_id">Contact Person</label>
+                            <select v-model="contact.contact_id" class="form-control" id="contact_id" v-if="adding">
+                                <option v-for="data in contact" v-bind:value="data.contact_id" v-text="data.fullname"></option>
+                            </select>
+
+                            <select v-model="contact.contact_id" class="form-control" id="contact_id" v-else>
+                                <option v-for="data in contact" v-bind:value="data.contact_id" v-text="data.fullname"></option>
+                            </select>
+
                         </div>
                     </div>
 
@@ -93,6 +97,7 @@
                             <button v-if="adding" @click="createRecord" type="button" class="btn btn-primary">Save changes Create</button>
                             <button v-else @click="updateRecord" type="button" class="btn btn-primary">Save changes Edit</button>
                         </div>
+
                     </div>
 
                 </div>
@@ -106,22 +111,20 @@ export default {
 
     data() {
         return {
-            columns: ['contact_id', 'lname', 'fname', 'mname', 'contact_no', 'designation', 'created_at', 'updated_at', 'actions'],
+            columns: ['office_id', 'name', 'fullname', 'contact_no', 'created_at', 'updated_at', 'actions'],
             tableData: [],
             options: {
                 headings: {
-                    contact_id: 'Contact ID',
-                    lname: 'Lastname',
-                    fname: 'Firstname',
-                    mname: 'Middlename',
-                    contact_no:'Contact #',
-                    designation: 'Designation',
+                    office_id: 'Office ID',
+                    name: 'Office Name',
+                    fullname: 'Contact Person',
+                    contact_no: 'Contact #',
                     created_at: 'Created At',
                     updated_at: 'Updated At',
                     action: 'Action',
                 },
-                sortable: ['contact_id', 'lname'],
-                filterable: ['contact_id', 'lname'],
+                sortable: ['office_id', 'name'],
+                filterable: ['office_id', 'name'],
                 templates: {
                     hol_date: function(h, row) {
                         return row.hol_date !== null ? moment(row.hol_date).format('YYYY-MM-DD') : null;
@@ -141,11 +144,13 @@ export default {
             url: './zipcode/export',
             url_pdf: './zipcode/pdf',
             errors: [],
-            contact_person: [],
+            office: [],
             adding: false,
             print: false,
             paperSize: 'Letter',
             paperOrientation: 'Portrait',
+            contact_select: [],
+            contact: [],
         }
     },
 
@@ -159,14 +164,17 @@ export default {
         },
 
         loadRecords() {
-            axios.get('contact_person/getrecord').then(function (res) {
-                this.tableData = res.data.contact_persons;
+            axios.get('office/getrecord').then(function (res) {
+                this.tableData = res.data.offices;
+                this.contact = res.data.contact;
+                console.log(this.contact);
                 console.log(this.tableData);
             }.bind(this));
         },
 
         loadCreateModal() {
-            this.contact_person = [];
+            this.office = [];     
+            this.contact.contact_id = 0;             
             this.errors = [];
             this.adding = true;
             this.print = false;
@@ -174,16 +182,13 @@ export default {
         },
 
         loadUpdateModal(index) {
-            axios.get('contact_person/edit/' + this.tableData[index].contact_id)
+            axios.get('office/edit/' + this.tableData[index].office_id)
                 .then(response => {
                     this.errors = [];
                     this.adding = false;
-                    this.contact_person.contact_id = response.data.contact_person.contact_id ;
-                    this.contact_person.lname = response.data.contact_person.lname;
-                    this.contact_person.fname = response.data.contact_person.fname;
-                    this.contact_person.mname = response.data.contact_person.mname;
-                    this.contact_person.contact_no = response.data.contact_person.contact_no;
-                    this.contact_person.designation = response.data.contact_person.designation;
+                    this.office.office_id = response.data.office.office_id;
+                    this.office.name = response.data.office.name;
+                    this.contact.contact_id = response.data.office.contact_id;
                     this.print = false;
                     $("#create-modal").modal("show");
                 })
@@ -201,17 +206,15 @@ export default {
         },
 
         createRecord() {
-            axios.post('contact_person/store',
+            axios.post('office/store',
                 {
-                    lname : this.contact_person.lname,
-                    fname : this.contact_person.fname,
-                    mname: this.contact_person.mname,
-                    contact_no: this.contact_person.contact_no,
-                    designation: this.contact_person.designation
+                    name: this.office.name,
+                    contact_id: this.contact.contact_id
                 })
                 .then(response => {
                     $("#create-modal").modal("hide");
-                    this.contact_person = [];
+                    this.office = [];
+                    this.contact = [];
                     toastr.success(response.data.message);
                     this.loadRecords();
                 })
@@ -222,14 +225,11 @@ export default {
         },
 
         updateRecord() {
-            axios.patch('contact_person/update/' + this.contact_person.contact_id,
+            axios.patch('office/update/' + this.office.office_id,
                 {
-                    contact_id: this.contact_person.contact_id,
-                    lname: this.contact_person.lname,
-                    fname: this.contact_person.fname,
-                    mname: this.contact_person.mname,
-                    contact_no: this.contact_person.contact_no,
-                    designation: this.contact_person.designation
+                    office_id: this.office.office_id,
+                    name: this.office.name,
+                    contact_id: this.contact.contact_id
                 })
                 .then(response=>{
                     $("#create-modal").modal("hide");
@@ -245,7 +245,7 @@ export default {
         deleteRecord(index) {
             let confirmBox = confirm("Do you really want to delete this record?");
             if(confirmBox == true){
-                axios.get('contact_person/destroy/' + this.tableData[index].contact_id)
+                axios.get('office/destroy/' + this.tableData[index].office_id)
                     .then(response=>{
                         this.loadRecords();
                         toastr.success(response.data.message);

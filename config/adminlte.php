@@ -256,11 +256,22 @@ return [
         ['header' => 'Master Data'],
         [
             'text' => 'Citizens',
-            'url'  => '/citizen'   
+            'url'  => '/citizen',
+            'icon' => 'fas fa-fw fa-user'   
         ],
         [
             'text' => 'Contact Persons',
-            'url'  => '/contact_person' 
+            'url'  => '/contact_person',
+            'icon' => 'fas fa-fw fa-user' 
+        ],
+        [
+            'text' => 'Offices',
+            'url'  => '/office'
+        ],
+        ['header' => 'Process'],
+        [
+            'text' => 'Request Application',
+            'url'  => '/request_app'
         ],
         ['header' => 'account_settings'],
         [

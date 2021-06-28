@@ -20,19 +20,24 @@ class CitizenController extends Controller
     }
 
     public function store(Request $request)
-    {
-        
+    {        
         $request->validate([
             'lname' => 'required', 
-            'fname' => 'required' /* using regular expression to validate if the user enter an integer --|regex:/^[0-9]*$/ */
+            'fname' => 'required', /* using regular expression to validate if the user enter an integer --|regex:/^[0-9]*$/ */
+            'contact_no' => 'regex:/[0-9]+$/'
         ], [
             'lname.required' => 'Last name is required.',
-            'fname.required' => 'First name is required.'
+            'fname.required' => 'First name is required.',
+            'contact_no.regex' => 'Contact # must be integer only'
         ]);
 
         $citizens = new Citizen();
         $citizens->lname = $request->lname;
         $citizens->fname = $request->fname;
+        $citizens->mname = $request->mname;
+        $citizens->address = $request->address;
+        $citizens->barangay = $request->barangay;
+        $citizens->contact_no = $request->contact_no;
         $citizens->save();
 
         return response()->json([
@@ -51,16 +56,22 @@ class CitizenController extends Controller
     {
         $request->validate([
             'lname' => 'required', /* using regular expression to validate if the user enter an integer |regex:/^[0-9]*$/*/
-            'fname' => 'required'
+            'fname' => 'required',
+            'contact_no' => 'regex:/[0-9]+$/'
         ], [
             'lname.required' => 'Last name is required.',
-            'fname.required' => 'First name is required.'
+            'fname.required' => 'First name is required.',
+            'contact_no.regex' => 'Contact # must be integer only'
         ]);
 
         $citizen = Citizen::where('citizen_id', '=', $request->citizen_id)->first();
         if(!empty($citizen )) {
             $citizen->lname = $request->lname;
             $citizen->fname = $request->fname;
+            $citizen->mname = $request->mname;
+            $citizen->address = $request->address;
+            $citizen->barangay = $request->barangay;
+            $citizen->contact_no = $request->contact_no;                       
             $citizen->save();
         }
         return response()->json([

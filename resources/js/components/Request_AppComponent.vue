@@ -1,10 +1,10 @@
 <template>
     <div>
-        <h2>Citizen</h2>
+        <h2>Request Application</h2>
         <div class="row">
             <div class="col-md-12">
                 <div class="form-group d-flex justify-content-between">
-                    <button v-on:click="loadCreateModal" class="btn btn-primary" style="width: 180px;">Add Citizen</button>
+                    <button v-on:click="loadCreateModal" class="btn btn-primary" style="width: 180px;">Add Request Application</button>
 
                     <div>
                         <a :href="url" class="btn btn-secondary">Export to Excel</a>
@@ -22,8 +22,8 @@
                     :columns="columns"
                     :options="options">
                    <template slot="actions" slot-scope="row">
-                        <button v-on:click="loadUpdateModal(row.index-1)" class="btn btn-success mb-2">Edit</button>
-                        <button v-on:click="deleteRecord(row.index-1)" class="btn btn-danger mb-2">Delete</button>
+                        <button v-on:click="" class="btn btn-success mb-2">Edit</button>
+                        <button v-on:click="" class="btn btn-danger mb-2">Delete</button>
                     </template> 
                 </v-client-table>
             </div>
@@ -38,8 +38,8 @@
                         <h5 class="modal-title" id="exampleModalLabel" v-if="print">Print Report</h5>
 
                         <div v-else>
-                            <h5 class="modal-title" id="exampleModalLabel" v-if="adding">Add Citizen</h5>
-                            <h5 class="modal-title" id="exampleModalLabel" v-else>Edit Citizen</h5>
+                            <h5 class="modal-title" id="exampleModalLabel" v-if="adding">Add Request Apps</h5>
+                            <h5 class="modal-title" id="exampleModalLabel" v-else>Edit Request Apps</h5>
                         </div>
 
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -71,23 +71,10 @@
                         </div>
 
                         <div class="form-group" v-else>
-                            <label for="lname">Lastname</label>
-                            <input v-model="citizen.lname" type="text" class="form-control" id="lname" maxlength="80">
+                            <label for="request_id">Lastname</label>
+                            <input v-model="request_app.request_id" type="text" class="form-control" id="request_id" maxlength="80">
 
-                            <label for="fname">Firstname</label>
-                            <input v-model="citizen.fname" type="text" class="form-control" id="fname" maxlength="80">
-
-                            <label for="mname">Middlename</label>
-                            <input v-model="citizen.mname" type="text" class="form-control" id="mname" maxlength="80">
-
-                            <label for="address">Address</label>
-                            <input v-model="citizen.address" type="text" class="form-control" id="address" maxlength="255">  
-
-                            <label for="barangay">Barangay</label>
-                            <input v-model="citizen.barangay" type="text" class="form-control" id="barangay" maxlength="80">
-
-                            <label for="contact_no">Contact #</label>
-                            <input v-model="citizen.contact_no" type="text" class="form-control" id="contact_no">                           
+                                                  
                         </div>
                     </div>
 
@@ -97,8 +84,8 @@
                         <button v-if="print" @click="pdfPrint" type="button" class="btn btn-primary">Print</button>
 
                         <div v-else>
-                            <button v-if="adding" @click="createRecord" type="button" class="btn btn-primary">Save changes Create</button>
-                            <button v-else @click="updateRecord" type="button" class="btn btn-primary">Save changes Edit</button>
+                            <button v-if="adding" @click="" type="button" class="btn btn-primary">Save changes Create</button>
+                            <button v-else @click="" type="button" class="btn btn-primary">Save changes Edit</button>
                         </div>
                     </div>
 
@@ -113,23 +100,21 @@ export default {
 
     data() {
         return {
-            columns: ['citizen_id', 'lname', 'fname', 'mname', 'address', 'barangay', 'contact_no', 'created_at', 'updated_at', 'actions'],
+            columns: ['request_id', 'citizen_id', 'office_id', 'purpose', 'status_id', 'created_at', 'updated_at', 'actions'],
             tableData: [],
             options: {
                 headings: {
-                    citizen_id: 'Citizen ID',
-                    lname: 'Lastname',
-                    fname: 'Firstname',
-                    mname: 'Middlename',
-                    address: 'Address',
-                    barangay: 'Barangay',
-                    contact_no: 'Contact #',
+                    request_id: 'Request ID',
+                    citizen_id: 'Citizen',
+                    office_id: 'Office',
+                    purpose: 'Purpose',
+                    status_id: 'Status',
                     created_at: 'Created At',
                     updated_at: 'Updated At',
                     action: 'Action',
                 },
-                sortable: ['citizen_id', 'lname'],
-                filterable: ['citizen_id', 'lname'],
+                sortable: ['request_id', 'citizen_id'],
+                filterable: ['request_id', 'citizen_id'],
                 templates: {
                     hol_date: function(h, row) {
                         return row.hol_date !== null ? moment(row.hol_date).format('YYYY-MM-DD') : null;
@@ -149,7 +134,7 @@ export default {
             url: './zipcode/export',
             url_pdf: './zipcode/pdf',
             errors: [],
-            citizen: [],
+            request_app: [],
             adding: false,
             print: false,
             paperSize: 'Letter',
@@ -167,14 +152,14 @@ export default {
         },
 
         loadRecords() {
-            axios.get('citizen/getrecord').then(function (res) {
-                this.tableData = res.data.citizens;
+            axios.get('request_app/getrecord').then(function (res) {
+                this.tableData = res.data.request_apps;
                 console.log(this.tableData);
             }.bind(this));
         },
 
         loadCreateModal() {
-            this.citizen = [];
+            this.request_app = [];
             this.errors = [];
             this.adding = true;
             this.print = false;
@@ -182,17 +167,12 @@ export default {
         },
 
         loadUpdateModal(index) {
-            axios.get('citizen/edit/' + this.tableData[index].citizen_id)
+            axios.get('request_app/edit/' + this.tableData[index].request_id)
                 .then(response => {
                     this.errors = [];
                     this.adding = false;
-                    this.citizen.citizen_id = response.data.citizen.citizen_id;
-                    this.citizen.lname = response.data.citizen.lname;
-                    this.citizen.fname = response.data.citizen.fname;
-                    this.citizen.mname = response.data.citizen.mname;
-                    this.citizen.address = response.data.citizen.address;
-                    this.citizen.barangay = response.data.citizen.barangay;
-                    this.citizen.contact_no = response.data.citizen.contact_no;
+                    this.request_app.request_id = response.data.request_app.request_id;
+                    
                     this.print = false;
                     $("#create-modal").modal("show");
                 })
@@ -209,63 +189,11 @@ export default {
             this.print = false;
         },
 
-        createRecord() {
-            axios.post('citizen/store',
-                {
-                    lname : this.citizen.lname,
-                    fname : this.citizen.fname,
-                    mname : this.citizen.mname,
-                    address : this.citizen.address,
-                    barangay : this.citizen.barangay,
-                    contact_no : this.citizen.contact_no
-                })
-                .then(response => {
-                    $("#create-modal").modal("hide");
-                    this.citizen = [];
-                    toastr.success(response.data.message);
-                    this.loadRecords();
-                })
-                .catch(error => {
-                    this.errors = [];
-                    this.e
-                    rrors = this.errorHandler(error.response.data.errors);
-                });
-        },
+        
 
-        updateRecord() {
-            axios.patch('citizen/update/' + this.citizen.citizen_id,
-                {
-                    citizen_id: this.citizen.citizen_id,
-                    lname: this.citizen.lname,
-                    fname: this.citizen.fname,
-                    mname: this.citizen.mname,
-                    address : this.citizen.address,
-                    barangay : this.citizen.barangay,
-                    contact_no : this.citizen.contact_no
-                })
-                .then(response=>{
-                    $("#create-modal").modal("hide");
-                    toastr.success(response.data.message);
-                    this.loadRecords();
-                })
-                .catch(error=>{
-                    this.errors = [];
-                    this.errors = this.errorHandler(error.response.data.errors);
-                });
-        },
+        
 
-        deleteRecord(index) {
-            let confirmBox = confirm("Do you really want to delete this record?");
-            if(confirmBox == true){
-                axios.get('citizen/destroy/' + this.tableData[index].citizen_id)
-                    .then(response=>{
-                        this.loadRecords();
-                        toastr.success(response.data.message);
-                    }).catch(error=>{
-                    console.log("Could not delete for some reason")
-                });
-            }
-        }
+        
 
     },
 

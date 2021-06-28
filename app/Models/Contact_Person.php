@@ -13,4 +13,8 @@ class Contact_Person extends Model
 
     protected $table = 'contact_persons';
     protected $primaryKey =  'contact_id';
+
+    public function offices() {
+        return $this->hasMany('App\Models\Offices');
+    }
 }

@@ -23,16 +23,21 @@ class Contact_PersonController extends Controller
         
         $request->validate([
             'lname' => 'required', 
-            'fname' => 'required' /* using regular expression to validate if the user enter an integer --|regex:/^[0-9]*$/ */
+            'fname' => 'required', /* using regular expression to validate if the user enter an integer --|regex:/^[0-9]*$/ */
+            'contact_no' => 'required|regex:/[0-9]+$/'
         ], [
             'lname.required' => 'Last name is required.',
-            'fname.required' => 'First name is required.'
+            'fname.required' => 'First name is required.',
+            'contact_no.regex' => 'Contact # must be integer only'
         ]);
 
-        $contact_persons = new Contact_Person();
-        $contact_persons->lname = $request->lname;
-        $contact_persons->fname = $request->fname;
-        $contact_persons->save();
+        $contact_person = new Contact_Person();
+        $contact_person->lname = $request->lname;
+        $contact_person->fname = $request->fname;
+        $contact_person->mname = $request->mname;
+        $contact_person->contact_no = $request->contact_no;
+        $contact_person->designation = $request->designation;
+        $contact_person->save();
 
         return response()->json([
             'message' => 'Contact Person successfully added.'
@@ -50,16 +55,22 @@ class Contact_PersonController extends Controller
     {
         $request->validate([
             'lname' => 'required', /* using regular expression to validate if the user enter an integer |regex:/^[0-9]*$/*/
-            'fname' => 'required'
+            'fname' => 'required',
+            'contact_no' => 'required|regex:/[0-9]+$/'
         ], [
             'lname.required' => 'Last name is required.',
-            'fname.required' => 'First name is required.'
+            'fname.required' => 'First name is required.',
+            'contact_no.required' => 'Contact # is required',
+            'contact_no.regex' => 'Contact # must be integer only'
         ]);
 
         $contact_person = Contact_Person::where('contact_id', '=', $request->contact_id)->first();
         if(!empty($contact_person )) {
             $contact_person->lname = $request->lname;
             $contact_person->fname = $request->fname;
+            $contact_person->mname = $request->mname;
+            $contact_person->contact_no = $request->contact_no;
+            $contact_person->designation = $request->designation;
             $contact_person->save();
         }
         return response()->json([

@@ -28,6 +28,9 @@ Vue.use( ClientTable, {}, false, 'bootstrap4');
 Vue.component('example-component', require('./components/ExampleComponent.vue').default);
 Vue.component('citizen-component', require('./components/CitizenComponent.vue').default);
 Vue.component('contact_person-component', require('./components/Contact_PersonComponent.vue').default);
+Vue.component('office-component', require('./components/OfficeComponent.vue').default);
+Vue.component('request_app-component', require('./components/Request_AppComponent.vue').default);
+Vue.component('status-component', require('./components/StatusComponent.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
